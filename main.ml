@@ -28,4 +28,7 @@ let interpret_file filename =
   filename |> open_in |> Lexing.from_channel |> interpret
 
 let () =
-  interpret_file "test_prog.tk" |> print_endline
+  let filename = Array.get Sys.argv 1 in
+  if Sys.file_exists filename
+  then filename |> interpret_file |> print_endline
+  else failwith ("File " ^ filename ^ " does not exist")
