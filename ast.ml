@@ -37,6 +37,8 @@ type e =
   | Bool of bool
   | Str of string
   | Var of var            (* variables *)
+  | Fn of var list * e    (* function value *)
+  | App of e * e list     (* function application *)
   | Bop of bop * e * e    (* operators *)
   | Uop of uop * e
   | Seq of e * e          (* sequence *)
