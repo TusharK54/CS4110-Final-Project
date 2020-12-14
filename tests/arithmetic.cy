@@ -27,3 +27,7 @@ assert 6 % 5 == 1;
 assert -6 % 5 == -1;
 assert 6 % -5 == 1;
 assert -6 % -5 == -1;
+
+assert 1 + 2 * 3 == 7;
+assert 1 * 2 + 3 == 5;
+assert (1 + 2) * 3 == 9;

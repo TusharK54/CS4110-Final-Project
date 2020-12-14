@@ -5,13 +5,14 @@ type value =
   | V_int of int
   | V_bool of bool
   | V_str of string
+  | V_tuple of value list
 and store = (var * value) list
 
 exception UnboundVariable of var
 exception TypeError of string
 
 (* `set_var (s, x, v)` returns the store s[x->v]. *)
-let rec set_var s x v : store =
+let rec set_var (s: store) (x: var) (v: value) : store =
   match s with
   | [] ->
     [(x,v)]
@@ -20,7 +21,7 @@ let rec set_var s x v : store =
     else (a,b)::(set_var z x v)
 
 (* `get_var s x` returns s(x) or UnboundVariable if x is not defined on s. *)
-let rec get_var s x : value =
+let rec get_var (s: store) (x: var) : value =
   match s with
   | [] ->
     raise (UnboundVariable x)
@@ -29,15 +30,20 @@ let rec get_var s x : value =
     else (get_var z x)
 
 (* `eval e` evaluates the expression e and returns it as an Ast.e type. *)
-let rec eval e =
+let rec eval (e: exp) : exp =
   let v, s' = eval_expr e [] in
+  ast_e v
+
+(* `ast_e v` returns a value the corresponding Ast.e type *)
+and ast_e (v: value) : exp =
   match v with
   | V_unit -> Unit
   | V_int i -> Int i
   | V_bool b -> Bool b
   | V_str t -> Str t
+  | V_tuple es -> Tuple (List.map (fun i -> ast_e i) es)
 
-and eval_expr e (s: store) : (value * store) =
+and eval_expr (e: exp) (s: store) : (value * store) =
   match e with
   | Unit ->
     V_unit, s
@@ -47,8 +53,28 @@ and eval_expr e (s: store) : (value * store) =
     V_bool b, s
   | Str t ->
     V_str t, s
+  | Tuple es ->
+    let vs = List.map (fun i -> fst (eval_expr i s)) es in
+    V_tuple vs, s
+  | Proj (e1, e2) ->
+    begin
+      let v1, s1 = eval_expr e1 s in
+      let v2, s2 = eval_expr e2 s1 in
+      match v1, v2 with
+      | V_tuple vs, V_int n ->
+        begin
+          match List.nth_opt vs n with
+          | Some v -> v, s2
+          | None -> raise (TypeError "TupleIndexOutOfBounds")
+        end
+      | _ -> raise (TypeError "Malformed projection")
+    end
   | Var (x, _) ->
     get_var s x, s
+  | Fn (xs, b) ->
+    failwith "Unimplemented"
+  | App (f, es) ->
+    failwith "Unimplemented"
   | Bop (op, e1, e2) ->
     begin
       let v1, s1 = eval_expr e1 s in
@@ -66,10 +92,18 @@ and eval_expr e (s: store) : (value * store) =
         V_unit, s2
       | Mod, V_int n1, V_int n2 ->
         V_int (n1 mod n2), s2
+      | Eq, V_unit, V_unit ->
+        V_bool true, s2
       | Eq, V_int n1, V_int n2 ->
         V_bool (n1 = n2), s2
-      | Ne, V_int n1, V_int n2 ->
-        V_bool (n1 <> n2), s2
+      | Eq, V_bool b1, V_bool b2 ->
+        V_bool (b1 = b2), s2
+      | Eq, V_str t1, V_str t2 ->
+        failwith "Unimplemented"
+      | Eq, V_tuple vs1, V_tuple vs2 ->
+        V_bool (vs1 = vs2), s2
+      | Ne, _, _ ->                       (* (x != y) >> !(x == y) *)
+        eval_expr (Uop(Not, Bop(Eq, ast_e v1, ast_e v2))) s2
       | Gt, V_int n1, V_int n2 ->
         V_bool (n1 > n2), s2
       | Ge, V_int n1, V_int n2 ->
@@ -78,10 +112,14 @@ and eval_expr e (s: store) : (value * store) =
         V_bool (n1 < n2), s2
       | Le, V_int n1, V_int n2 ->
         V_bool (n1 <= n2), s2
-      | And, V_bool b1, V_bool b2 ->
-        V_bool (b1 && b2), s2
-      | Or, V_bool b1, V_bool b2 ->
-        V_bool (b1 || b2), s2
+      | And, V_bool b1, _ when not b1 ->  (* short-circuit evaluation *)
+        V_bool false, s2
+      | And, V_bool b1, V_bool b2 when b1 ->
+        V_bool b2, s2
+      | Or, V_bool b1, _ when b1 ->       (* short-circuit evaluation *)
+        V_bool true, s2
+      | Or, V_bool b1, V_bool b2 when not b1 ->
+        V_bool b2, s2
       | _, _, _ ->
         raise (TypeError "Malformed binary operator")
     end
@@ -104,7 +142,9 @@ and eval_expr e (s: store) : (value * store) =
     eval_expr e2 s1
   | Assign (x, e) ->
     let v1, s1 = eval_expr e s in
-    v1, set_var s1 x v1
+    V_unit, set_var s1 x v1
+  | AssignTuple (xs, es) ->
+    failwith "Unimplemented"
   | If (g, e1, e2) ->
     begin
       let v1, s1 = eval_expr g s in

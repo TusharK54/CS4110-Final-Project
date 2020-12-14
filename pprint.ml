@@ -1,6 +1,6 @@
 open Ast
 
-let rec string_of_e e =
+let rec string_of_e (e: exp) : string =
   match e with
   | Unit ->
   "()"
@@ -12,11 +12,21 @@ let rec string_of_e e =
   if b then "true" else "false"
   | Str s ->
   s
+  | Tuple es ->
+  "(" ^ (String.concat ", " (List.map (fun i -> string_of_e i) es)) ^ ")"
+  | Proj (t, n) ->
+  let s1 = string_of_e t in
+  let s2 = string_of_e n in
+  String.concat "" [s1; "["; s2; "]"]
   | Var (x, None) ->
   x
   | Var (x, Some t) ->
   let s = string_of_t t in
   String.concat "" ["("; x; " : "; s; ")"]
+  | Fn (xs, b) ->
+    failwith "Unimplemented"
+  | App (f, es) ->
+    failwith "Unimplemented"
   | Bop (op, e1, e2) ->
     begin
       let s1 = string_of_e e1 in
@@ -67,25 +77,29 @@ let rec string_of_e e =
   | Assign (x, e) ->
     let s = string_of_e e in
     String.concat " " [x; "="; s]
+  | AssignTuple (xs, es) ->
+    let s1 = string_of_e xs in
+    let s2 = string_of_e es in
+    String.concat " " [s1; "="; s2]
   | If (g, e1, e2) ->
     let s0 = string_of_e g in
     let s1 = string_of_e e1 in
     let s2 = string_of_e e2 in
     String.concat " " ["if"; s0; "{"; s1; "} else {"; s2; "}"]
 
-and string_of_t t =
+and string_of_t (t: typ) : string =
   match t with
   | T_int ->
-  "int"
+    "int"
   | T_bool ->
-  "bool"
+    "bool"
   | T_str ->
-  "str"
+    "str"
   | T_unit ->
-  "unit"
+    "unit"
   | T_fun (t_args, t_out) ->
-  ""
+    failwith "Unimplemented"
   | T_sum t_list ->
-  ""
+    failwith "Unimplemented"
   | T_product t_list ->
-  ""
+    failwith "Unimplemented"

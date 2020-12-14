@@ -6,9 +6,11 @@ exception Err
 }
 
 let int = ['0'-'9']+
-let str = ['A'-'Z' 'a'-'z']+
+let str_q = "'" ['A'-'Z' 'a'-'z' ' ' '\t']* "'"
+let str_qq = '"' ['A'-'Z' 'a'-'z' ' ' '\t']* '"'
 let var = ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9']*
 let ws = [' ' '\t']
+let comment = '#' _* '\n'
 
 rule token = parse
 | "("               { LPAREN }
@@ -36,9 +38,6 @@ rule token = parse
 | "||"              { OR }
 | "!"               { NOT }
 
-| "'"               { QUOTE }
-| "\""              { DQUOTE }
-
 | "="               { ASSIGN }
 | ";"               { SEQ }
 
@@ -52,14 +51,21 @@ rule token = parse
 
 | "assert"          { ASSERT }
 
+| ","               { COMMA }
+| "."               { DOT }
+| "'"               { QUOTE }
+| "\""              { DQUOTE }
+
 | "()"              { UNIT }
 | int as n          { INT(int_of_string n) }
 | "true"            { BOOL(true) }
 | "false"           { BOOL(false) }
-| str as s          { STR(s) }
+| str_q as s        { STR(s) }
+| str_qq as s       { STR(s) }
 | var as x          { ID(x) }
 
 | ws                { token lexbuf }
+| comment           { Lexing.new_line lexbuf; token lexbuf }
 | '\n'              { Lexing.new_line lexbuf; token lexbuf }
 
 | eof               { EOF }

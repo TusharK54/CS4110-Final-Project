@@ -1,8 +1,8 @@
-type t =
+type typ =
   | T_int | T_bool | T_str | T_unit
-  | T_sum of t list
-  | T_product of t list
-  | T_fun of t list * t
+  | T_sum of typ list
+  | T_product of typ list
+  | T_fun of typ list * typ
 
 (* Variable *)
 type var = string
@@ -30,16 +30,19 @@ type bop =
   | Or
 
 (* Expressions *)
-type e =
+type exp =
   | Unit
-  | Int of int            (* literals *)
+  | Var of var * typ option (* variable reference *)
+  | Int of int              (* literals *)
   | Bool of bool
   | Str of string
-  | Var of var * t option (* variable reference *)
-  | Fn of var list * e    (* function value *)
-  | App of e * e list     (* function application *)
-  | Bop of bop * e * e    (* operators *)
-  | Uop of uop * e
-  | Seq of e * e          (* sequence *)
-  | If of e * e * e       (* if expression *)
-  | Assign of var * e     (* assignment *)
+  | Tuple of exp list       (* tuples *)
+  | Proj of exp * exp
+  | Fn of var list * exp    (* function value *)
+  | App of exp * exp list   (* function application *)
+  | Bop of bop * exp * exp  (* operators *)
+  | Uop of uop * exp
+  | Seq of exp * exp        (* sequence *)
+  | Assign of var * exp     (* assignment *)
+  | AssignTuple of exp * exp
+  | If of exp * exp * exp   (* if expression *)
