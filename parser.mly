@@ -7,13 +7,17 @@
 %token UNIT
 %token <int> INT
 %token <bool> BOOL
-%token <string> STR VAR
+%token <string> STR ID
+%token T_INT T_BOOL T_STR
 %token LPAREN RPAREN LSQUARE RSQUARE LCURLY RCURLY
 %token ADD SUB MUL DIV EXP MOD
 %token EQ NE GT GE LT LE NOT AND OR
+%token QUOTE DQUOTE COLON
+
 %token SEQ
 %token ASSIGN
 %token IF ELSE
+%token ASSERT
 %token EOF
 
 /* precedence rules */
@@ -37,7 +41,7 @@ def_exp:
   | def                                 { $1 }
 
 def:
-  | VAR ASSIGN exp                      { Assign($1, $3) }
+  | var ASSIGN exp                      { Assign($1, $3) }
   | seq_exp                             { $1 }
 
 /* sequence expressions */
@@ -54,11 +58,11 @@ exp:
   | v                                   { $1 }
   | uop                                 { $1 }
   | bop                                 { $1 }
+  | var ASSIGN exp                      { Assign($1, $3) }
   | IF exp block_exp ELSE block_exp     { If($2, $3, $5) }
-  | VAR ASSIGN exp                      { Assign($1, $3) }
 
 uop:
-  | SUB exp                             { Uop(Negate, $2) }
+  | ASSERT exp                          { Uop(Assert, $2) }
   | NOT exp                             { Uop(Not, $2) }
 
 bop:
@@ -77,11 +81,27 @@ bop:
   | exp AND exp                         { Bop(And, $1, $3) }
   | exp OR exp                          { Bop(Or, $1, $3) }
 
+/* values */
 v:
+  | var                                 { Var($1, None) }
+  | var COLON typ                       { Var($1, Some $3) }
   | UNIT                                { Unit }
   | INT                                 { Int($1) }
+  | SUB INT                             { Int($2 * -1) }
   | BOOL                                { Bool($1) }
-  | STR                                 { Str($1) }
-  | VAR                                 { Var($1) }
+  | QUOTE STR QUOTE                     { Str($2) }
+  | DQUOTE STR DQUOTE                   { Str($2) }
   | LPAREN seq_exp RPAREN               { $2 }
+
+var:
+  | STR                                 { $1 }
+  | ID                                  { $1 }
+
+/* types */
+typ:
+  | T_INT                               { T_int }
+  | T_BOOL                              { T_bool }
+  | T_STR                               { T_str }
+
+
 /*  | F LPAREN arglist RPAREN block_exp   {  }  */

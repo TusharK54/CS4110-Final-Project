@@ -1,4 +1,4 @@
-MAIN := tk
+MAIN := crispy
 OBJS := ast.cmo pprint.cmo lexer.cmo parser.cmo eval.cmo main.cmo
 
 #test.cmo:

@@ -47,7 +47,7 @@ and eval_expr e (s: store) : (value * store) =
     V_bool b, s
   | Str t ->
     V_str t, s
-  | Var x ->
+  | Var (x, _) ->
     get_var s x, s
   | Bop (op, e1, e2) ->
     begin
@@ -89,8 +89,11 @@ and eval_expr e (s: store) : (value * store) =
     begin
       let v1, s1 = eval_expr e s in
       match op, v1 with
-      | Negate, V_int n ->
-        V_int (0 - n), s1
+      | Assert, V_bool b ->
+        if b then (V_unit, s1)
+        else failwith ("false assertion: " ^ Pprint.string_of_e e)
+      | Assert, _ ->
+        failwith ("invalid assertion: " ^ Pprint.string_of_e e)
       | Not, V_bool b ->
         V_bool(not b), s1
       | _, _ ->

@@ -12,14 +12,14 @@ let interpret lexbuf =
         pos.Lexing.pos_lnum (pos.Lexing.pos_cnum - pos.Lexing.pos_bol);
       exit 1
   in
-  e |> Pprint.to_string |> print_endline;
+  e |> Pprint.string_of_e |> print_endline;
 
   (* TODO: Type-check expression *)
 
   (* Evaluate expression *)
   Format.printf "Evaluating expression...\n";
   Format.print_flush ();
-  let v = Eval.eval e in Pprint.to_string v
+  let v = Eval.eval e in Pprint.string_of_e v
 
 let interpret_str str =
   str |> Lexing.from_string |> interpret

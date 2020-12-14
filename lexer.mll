@@ -5,8 +5,9 @@ exception Eof
 exception Err
 }
 
-let digit = ['0'-'9']
-let id = ['a'-'z'] ['a'-'z' '0'-'9']*
+let int = ['0'-'9']+
+let str = ['A'-'Z' 'a'-'z']+
+let var = ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9']*
 let ws = [' ' '\t']
 
 rule token = parse
@@ -35,17 +36,28 @@ rule token = parse
 | "||"              { OR }
 | "!"               { NOT }
 
+| "'"               { QUOTE }
+| "\""              { DQUOTE }
+
 | "="               { ASSIGN }
 | ";"               { SEQ }
 
 | "if"              { IF }
 | "else"            { ELSE }
 
-| digit+ as n       { INT(int_of_string n) }
+| ":"               { COLON }
+| "int"             { T_INT }
+| "bool"            { T_BOOL }
+| "str"             { T_STR }
+
+| "assert"          { ASSERT }
+
+| "()"              { UNIT }
+| int as n          { INT(int_of_string n) }
 | "true"            { BOOL(true) }
 | "false"           { BOOL(false) }
-| id as x           { VAR(x) }
-| "()"              { UNIT }
+| str as s          { STR(s) }
+| var as x          { ID(x) }
 
 | ws                { token lexbuf }
 | '\n'              { Lexing.new_line lexbuf; token lexbuf }

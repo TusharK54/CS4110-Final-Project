@@ -1,8 +1,7 @@
 type t =
   | T_int | T_bool | T_str | T_unit
-  | T_list of t
   | T_sum of t list
-  | T_prod of t list
+  | T_product of t list
   | T_fun of t list * t
 
 (* Variable *)
@@ -10,7 +9,7 @@ type var = string
 
 (* Unary operators *)
 type uop =
-  | Negate
+  | Assert
   | Not
 
 (* Binary operators *)
@@ -36,7 +35,7 @@ type e =
   | Int of int            (* literals *)
   | Bool of bool
   | Str of string
-  | Var of var            (* variables *)
+  | Var of var * t option (* variable reference *)
   | Fn of var list * e    (* function value *)
   | App of e * e list     (* function application *)
   | Bop of bop * e * e    (* operators *)
