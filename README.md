@@ -1,5 +1,5 @@
 
-# Crispy Programming Language
+# 🥓 Crispy Programming Language
 
 Crispy is statically-typed functional programming language with type inference. It is designed to be a simple language with *crispy* language features that make it useful.
 
