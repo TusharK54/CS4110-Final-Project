@@ -3,26 +3,31 @@ open Ast
 let rec string_of_e (e: exp) : string =
   match e with
   | Unit ->
-  "()"
+    "()"
   | Int n ->
-  let s = string_of_int n in
-  if n < 0 then String.concat "" ["("; s; ")"]
-  else s
+    let s = string_of_int n in
+    if n < 0 then String.concat "" ["("; s; ")"]
+    else s
   | Bool b ->
-  if b then "true" else "false"
+    if b then "true" else "false"
   | Str s ->
-  s
+    String.concat "" ["\""; s; "\""]
+  | Slice (e1, n1, n2) ->
+    let s = string_of_e e1 in
+    let s1 = string_of_e n1 in
+    let s2 = string_of_e n2 in
+    String.concat "" [s; "["; s1; ":"; s2; "]"]
   | Tuple es ->
-  "(" ^ (String.concat ", " (List.map (fun i -> string_of_e i) es)) ^ ")"
+    "(" ^ (String.concat ", " (List.map (fun i -> string_of_e i) es)) ^ ")"
   | Proj (t, n) ->
-  let s1 = string_of_e t in
-  let s2 = string_of_e n in
-  String.concat "" [s1; "["; s2; "]"]
+    let s1 = string_of_e t in
+    let s2 = string_of_e n in
+    String.concat "" [s1; "["; s2; "]"]
   | Var (x, None) ->
-  x
+    x
   | Var (x, Some t) ->
-  let s = string_of_t t in
-  String.concat "" ["("; x; " : "; s; ")"]
+    let s = string_of_t t in
+    String.concat "" ["("; x; " : "; s; ")"]
   | Fn (xs, b) ->
     failwith "Unimplemented"
   | App (f, es) ->
@@ -33,33 +38,33 @@ let rec string_of_e (e: exp) : string =
       let s2 = string_of_e e2 in
       match op with
       | Add ->
-      String.concat "" ["("; s1; " + "; s2; ")"]
+        String.concat "" ["("; s1; " + "; s2; ")"]
       | Sub ->
-      String.concat "" ["("; s1; " - "; s2; ")"]
+        String.concat "" ["("; s1; " - "; s2; ")"]
       | Mul ->
-      String.concat "" ["("; s1; " * "; s2; ")"]
+        String.concat "" ["("; s1; " * "; s2; ")"]
       | Div ->
-      String.concat "" ["("; s1; " / "; s2; ")"]
+        String.concat "" ["("; s1; " / "; s2; ")"]
       | Exp ->
-      String.concat "" ["("; s1; " ^ "; s2; ")"]
+        String.concat "" ["("; s1; " ^ "; s2; ")"]
       | Mod ->
-      String.concat "" ["("; s1; " % "; s2; ")"]
+        String.concat "" ["("; s1; " % "; s2; ")"]
       | Eq ->
-      String.concat "" ["("; s1; " == "; s2; ")"]
+        String.concat "" ["("; s1; " == "; s2; ")"]
       | Ne ->
-      String.concat "" ["("; s1; " != "; s2; ")"]
+        String.concat "" ["("; s1; " != "; s2; ")"]
       | Gt ->
-      String.concat "" ["("; s1; " > "; s2; ")"]
+        String.concat "" ["("; s1; " > "; s2; ")"]
       | Ge ->
-      String.concat "" ["("; s1; " >= "; s2; ")"]
+        String.concat "" ["("; s1; " >= "; s2; ")"]
       | Lt ->
-      String.concat "" ["("; s1; " < "; s2; ")"]
+        String.concat "" ["("; s1; " < "; s2; ")"]
       | Le ->
-      String.concat "" ["("; s1; " <= "; s2; ")"]
+        String.concat "" ["("; s1; " <= "; s2; ")"]
       | And ->
-      String.concat "" ["("; s1; " && "; s2; ")"]
+        String.concat "" ["("; s1; " && "; s2; ")"]
       | Or ->
-      String.concat "" ["("; s1; " || "; s2; ")"]
+        String.concat "" ["("; s1; " || "; s2; ")"]
     end
   | Uop (op, e) ->
     begin

@@ -4,7 +4,7 @@
   open Lexing
 
   let trim_str s =
-    let s' = String.sub s 1 (String.length s - 1) in
+    let s' = String.sub s 1 (String.length s - 2) in
     Str(s')
 
   let build_tuple e1 e2 =
@@ -53,20 +53,17 @@ block_exp:
   ;
 
 seq_exp:
-  | cmd                                 { $1 }
-  | cmd SEQ                             { $1 }
-  | cmd SEQ seq_exp                     { Seq($1, $3) }
-  ;
-
-cmd:
   | exp                                 { $1 }
-  | assign                              { $1 }
+  | exp SEQ                             { $1 }
+  | exp SEQ seq_exp                     { Seq($1, $3) }
+  ;
 
 /* expressions */
 exp:
   | v                                   { $1 }
   | bop                                 { $1 }
   | uop                                 { $1 }
+  | assign                              { $1 }
   | IF exp block_exp ELSE block_exp     { If($2, $3, $5) }
   ;
 
@@ -95,6 +92,11 @@ bop:
   | exp LE exp                          { Bop(Le, $1, $3) }
   | exp AND exp                         { Bop(And, $1, $3) }
   | exp OR exp                          { Bop(Or, $1, $3) }
+  | exp LSQUARE exp RSQUARE             { Proj($1, $3) }
+  | exp LSQUARE exp COLON exp RSQUARE   { Slice($1, $3, $5) }
+  | exp LSQUARE exp COLON RSQUARE       { Slice($1, $3, Unit) }
+  | exp LSQUARE COLON exp RSQUARE       { Slice($1, Unit, $4) }
+  | exp LSQUARE COLON RSQUARE           { Slice($1, Unit, Unit) }
   ;
 
 /* values */
@@ -103,7 +105,6 @@ v:
   | var COLON typ                       { Var($1, Some $3) }
   | lit                                 { $1 }
   | tuple                               { $1 }
-  | exp LSQUARE exp RSQUARE             { Proj($1, $3) }
   | LPAREN seq_exp RPAREN               { $2 }
   ;
 

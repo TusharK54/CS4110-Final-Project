@@ -1,11 +1,8 @@
-a = "hello";
+name = "tushar";
+age = 18;
 
-b = 20;
-
-c = b;
-
-if c == b {
-    ()
+if age > 21 {
+    name + " is old enough to drink"
 } else {
-    c
+    name + " is NOT old enough to drink"
 }

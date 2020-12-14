@@ -36,6 +36,7 @@ type exp =
   | Int of int              (* literals *)
   | Bool of bool
   | Str of string
+  | Slice of exp * exp * exp
   | Tuple of exp list       (* tuples *)
   | Proj of exp * exp
   | Fn of var list * exp    (* function value *)

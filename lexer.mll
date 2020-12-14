@@ -6,8 +6,8 @@ exception Err
 }
 
 let int = ['0'-'9']+
-let str_q = "'" ['A'-'Z' 'a'-'z' ' ' '\t']* "'"
-let str_qq = '"' ['A'-'Z' 'a'-'z' ' ' '\t']* '"'
+let str_q = "'" ['A'-'Z' 'a'-'z' '0'-'9' '\\' ' ' '\t']* "'"
+let str_qq = '"' ['A'-'Z' 'a'-'z' '0'-'9' '\\' ' ' '\t']* '"'
 let var = ['A'-'Z' 'a'-'z'] ['A'-'Z' 'a'-'z' '0'-'9']*
 let ws = [' ' '\t']
 let comment = '#' _* '\n'

@@ -10,6 +10,7 @@ and store = (var * value) list
 
 exception UnboundVariable of var
 exception TypeError of string
+exception RuntimeError of string
 
 (* `set_var (s, x, v)` returns the store s[x->v]. *)
 let rec set_var (s: store) (x: var) (v: value) : store =
@@ -53,6 +54,27 @@ and eval_expr (e: exp) (s: store) : (value * store) =
     V_bool b, s
   | Str t ->
     V_str t, s
+  | Slice (e1, e2, e3) ->
+    begin
+      let v1, s1 = eval_expr e1 s in
+      let v2, s2 = eval_expr e2 s1 in
+      let v3, s3 = eval_expr e3 s2 in
+      match v1 with
+      | V_str t ->
+        begin
+          let get_n (v: value) default =
+            match v with
+            | V_int n -> if n < 0 then String.length t + n else n
+            | V_unit -> default
+            | _ -> raise (TypeError "Malformed slicing")
+          in
+          let n1' = get_n v2 0 in
+          let n2' = get_n v3 (String.length t) in
+          if n1' <= n2' then V_str (String.sub t n1' (n2'-n1')), s3
+          else raise (TypeError "String slicing out of bounds")
+        end
+      | _ -> raise (RuntimeError ("Malformed slicing: " ^ (Pprint.string_of_e e)))
+    end
   | Tuple es ->
     let vs = List.map (fun i -> fst (eval_expr i s)) es in
     V_tuple vs, s
@@ -61,13 +83,17 @@ and eval_expr (e: exp) (s: store) : (value * store) =
       let v1, s1 = eval_expr e1 s in
       let v2, s2 = eval_expr e2 s1 in
       match v1, v2 with
+      | V_str t, V_int n ->
+        let n' = (if n < 0 then String.length t + n else n) in
+        if n' < String.length t then V_str (String.sub t n' 1), s
+        else raise (RuntimeError ("String index out of bounds: " ^ (Pprint.string_of_e e)))
       | V_tuple vs, V_int n ->
         begin
           match List.nth_opt vs n with
           | Some v -> v, s2
-          | None -> raise (TypeError "TupleIndexOutOfBounds")
+          | None -> raise (RuntimeError ("Tuple index out of bounds: " ^ (Pprint.string_of_e e)))
         end
-      | _ -> raise (TypeError "Malformed projection")
+      | _ -> raise (RuntimeError ("Malformed indexing: " ^ (Pprint.string_of_e e)))
     end
   | Var (x, _) ->
     get_var s x, s
@@ -82,6 +108,8 @@ and eval_expr (e: exp) (s: store) : (value * store) =
       match op, v1, v2 with
       | Add, V_int n1, V_int n2 ->
         V_int (n1 + n2), s2
+      | Add, V_str t1, V_str t2 ->
+        V_str (t1^t2), s2
       | Sub, V_int n1, V_int n2 ->
         V_int (n1 - n2), s2
       | Mul, V_int n1, V_int n2 ->
@@ -99,7 +127,7 @@ and eval_expr (e: exp) (s: store) : (value * store) =
       | Eq, V_bool b1, V_bool b2 ->
         V_bool (b1 = b2), s2
       | Eq, V_str t1, V_str t2 ->
-        failwith "Unimplemented"
+        V_bool (t1 = t2), s2
       | Eq, V_tuple vs1, V_tuple vs2 ->
         V_bool (vs1 = vs2), s2
       | Ne, _, _ ->                       (* (x != y) >> !(x == y) *)
@@ -121,7 +149,7 @@ and eval_expr (e: exp) (s: store) : (value * store) =
       | Or, V_bool b1, V_bool b2 when not b1 ->
         V_bool b2, s2
       | _, _, _ ->
-        raise (TypeError "Malformed binary operator")
+        raise (RuntimeError ("Malformed binary operator: " ^ (Pprint.string_of_e e)))
     end
   | Uop (op, e) ->
     begin
@@ -135,7 +163,7 @@ and eval_expr (e: exp) (s: store) : (value * store) =
       | Not, V_bool b ->
         V_bool(not b), s1
       | _, _ ->
-        raise (TypeError "Malformed unary operator")
+        raise (RuntimeError ("Malformed unary operator: " ^ (Pprint.string_of_e e)))
     end
   | Seq (e1, e2) ->
     let _, s1 = eval_expr e1 s in

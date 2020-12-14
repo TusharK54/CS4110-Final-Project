@@ -8,6 +8,9 @@ assert -2 - 6 == -8;
 assert 2 - -6 == 8;
 assert -2 - -6 == 4;
 
+assert 2 -6 == -4;
+assert 2-6 == -4;
+
 assert 2 * 6 == 12;
 assert -2 * 6 == -12;
 assert 2 * -6 == -12;
