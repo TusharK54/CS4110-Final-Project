@@ -23,10 +23,10 @@
 %token EQ NE GT GE LT LE NOT AND OR
 %token COMMA DOT QUOTE DQUOTE COLON
 
+%token ASSIGN F
 %token SEQ
-%token ASSIGN
 %token IF ELSE
-%token ASSERT
+%token ASSERT ASSERTFAIL
 %token EOF
 
 /* precedence rules */
@@ -73,8 +73,9 @@ assign:
   ;
 
 uop:
-  | ASSERT exp                          { Uop(Assert, $2) }
   | NOT exp                             { Uop(Not, $2) }
+  | ASSERT exp                          { Uop(Assert, $2) }
+  | ASSERTFAIL exp                      { Uop(AssertFail, $2) }
   ;
 
 bop:
@@ -105,6 +106,8 @@ v:
   | var COLON typ                       { Var($1, Some $3) }
   | lit                                 { $1 }
   | tuple                               { $1 }
+  | F LPAREN arglist RPAREN block_exp   { Fn($3, $5) }
+  | exp LPAREN vallist RPAREN           { App($1, $3) }
   | LPAREN seq_exp RPAREN               { $2 }
   ;
 
@@ -124,12 +127,20 @@ tuple:
   | exp COMMA exp                       { build_tuple $1 $3 }
   ;
 
+/* functions */
+vallist:
+  | v                                   { [$1] }
+  | v COMMA vallist                     { $1::$3 }
+
+arglist:
+  | var                                 { [$1] }
+  | var COMMA arglist                   { $1::$3 }
+  ;
+
+
 /* types */
 typ:
   | T_INT                               { T_int }
   | T_BOOL                              { T_bool }
   | T_STR                               { T_str }
   ;
-
-
-/*  | F LPAREN arglist RPAREN block_exp   {  }  */

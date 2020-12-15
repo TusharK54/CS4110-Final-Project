@@ -29,9 +29,13 @@ let rec string_of_e (e: exp) : string =
     let s = string_of_t t in
     String.concat "" ["("; x; " : "; s; ")"]
   | Fn (xs, b) ->
-    failwith "Unimplemented"
-  | App (f, es) ->
-    failwith "Unimplemented"
+    let args = String.concat ", " xs in
+    let body = string_of_e b in
+    String.concat "" ["f("; args ;") {\n"; body ; "\n}\n"]
+  | App (ef, es) ->
+    let f = string_of_e ef in
+    let args = List.map (fun i -> string_of_e i) es |> String.concat ", " in
+    String.concat "" [f; "("; args; ")"]
   | Bop (op, e1, e2) ->
     begin
       let s1 = string_of_e e1 in

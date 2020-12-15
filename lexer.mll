@@ -49,7 +49,9 @@ rule token = parse
 | "bool"            { T_BOOL }
 | "str"             { T_STR }
 
+| "f"               { F }
 | "assert"          { ASSERT }
+| "assertfail"      { ASSERTFAIL }
 
 | ","               { COMMA }
 | "."               { DOT }

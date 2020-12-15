@@ -7,10 +7,13 @@ type typ =
 (* Variable *)
 type var = string
 
+type arg_list = var list
+
 (* Unary operators *)
 type uop =
-  | Assert
   | Not
+  | Assert
+  | AssertFail
 
 (* Binary operators *)
 type bop =
