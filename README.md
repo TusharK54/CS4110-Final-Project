@@ -11,7 +11,7 @@ Crispy is statically-typed functional programming language with type inference. 
 
 3. Type Inferencing
 ```
-# infers max : number >> number >> number
+# infers max : number -> number -> number
 max = (x,y) >> { if x > y { x } else { y } }
 ```
 
