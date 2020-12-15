@@ -2,6 +2,8 @@ open Ast
 
 let rec string_of_e (e: exp) : string =
   match e with
+  | Nop ->
+    ""
   | Unit ->
     "()"
   | Int n ->
@@ -74,10 +76,12 @@ let rec string_of_e (e: exp) : string =
     begin
       let s = string_of_e e in
       match op with
-      | Assert ->
-      String.concat "" ["assert "; s]
       | Not ->
       String.concat "" ["(!"; s; ")"]
+      | Assert ->
+      String.concat "" ["assert "; s]
+      | AssertFail ->
+      String.concat "" ["assertfail "; s]
     end
   | Seq (e1, e2) ->
     let s1 = string_of_e e1 in

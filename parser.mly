@@ -25,7 +25,7 @@
 
 %token ASSIGN F
 %token SEQ
-%token IF ELSE
+%token IF ELSE WHILE
 %token ASSERT ASSERTFAIL
 %token EOF
 
@@ -44,27 +44,44 @@
 %start program
 
 %%
-program: seq_exp EOF ;                  { $1 }
+program: seq EOF ;                  { $1 }
 
 
 /* sequence expressions */
-block_exp:
-  | LCURLY seq_exp RCURLY               { $2 }
-  ;
-
-seq_exp:
+seq:
   | exp                                 { $1 }
   | exp SEQ                             { $1 }
-  | exp SEQ seq_exp                     { Seq($1, $3) }
+  | exp SEQ seq                         { Seq($1, $3) }
+  | block_exp                           { $1 }
+  | block_exp seq                       { Seq($1, $2) }
   ;
 
+block_seq:  /* blocks that are not followed by a SEQ */
+  | block                               { $1 }
+  ;
+
+block:      /* blocks that must be followed by a SEQ */
+  | LCURLY seq RCURLY                   { $2 }
+
 /* expressions */
+block_exp:
+  | IF exp block_seq ELSE block_seq             { If($2, $3, $5) }
+  | WHILE exp block_seq                     { Unit }
+
 exp:
   | v                                   { $1 }
   | bop                                 { $1 }
   | uop                                 { $1 }
   | assign                              { $1 }
-  | IF exp block_exp ELSE block_exp     { If($2, $3, $5) }
+  | slice                               { $1 } 
+  | exp LSQUARE exp RSQUARE             { Proj($1, $3) }
+  ;
+
+slice:
+  | exp LSQUARE exp COLON exp RSQUARE   { Slice($1, $3, $5) }
+  | exp LSQUARE exp COLON RSQUARE       { Slice($1, $3, Nop) }
+  | exp LSQUARE COLON exp RSQUARE       { Slice($1, Nop, $4) }
+  | exp LSQUARE COLON RSQUARE           { Slice($1, Nop, Nop) }
   ;
 
 assign:
@@ -93,11 +110,6 @@ bop:
   | exp LE exp                          { Bop(Le, $1, $3) }
   | exp AND exp                         { Bop(And, $1, $3) }
   | exp OR exp                          { Bop(Or, $1, $3) }
-  | exp LSQUARE exp RSQUARE             { Proj($1, $3) }
-  | exp LSQUARE exp COLON exp RSQUARE   { Slice($1, $3, $5) }
-  | exp LSQUARE exp COLON RSQUARE       { Slice($1, $3, Unit) }
-  | exp LSQUARE COLON exp RSQUARE       { Slice($1, Unit, $4) }
-  | exp LSQUARE COLON RSQUARE           { Slice($1, Unit, Unit) }
   ;
 
 /* values */
@@ -106,9 +118,9 @@ v:
   | var COLON typ                       { Var($1, Some $3) }
   | lit                                 { $1 }
   | tuple                               { $1 }
-  | F LPAREN arglist RPAREN block_exp   { Fn($3, $5) }
+  | F LPAREN arglist RPAREN block       { Fn($3, $5) }
   | exp LPAREN vallist RPAREN           { App($1, $3) }
-  | LPAREN seq_exp RPAREN               { $2 }
+  | LPAREN seq RPAREN                   { $2 }
   ;
 
 var:

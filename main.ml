@@ -17,7 +17,7 @@ let interpret lexbuf =
   (* TODO: Type-check expression *)
 
   (* Evaluate expression *)
-  Format.printf "Evaluating expression...\n";
+  Format.printf "\nEvaluating expression...\n";
   Format.print_flush ();
   let v = Eval.eval e in Pprint.string_of_e v
 

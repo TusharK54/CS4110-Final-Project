@@ -34,6 +34,7 @@ type bop =
 
 (* Expressions *)
 type exp =
+  | Nop                     (* special purpose *)
   | Unit
   | Var of var * typ option (* variable reference *)
   | Int of int              (* literals *)

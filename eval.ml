@@ -1,6 +1,7 @@
 open Ast
 
 type value =
+  | V_nop
   | V_unit
   | V_int of int
   | V_bool of bool
@@ -47,6 +48,8 @@ let rec eval (e: exp) : exp =
 (* `ast_e v` returns a value of the corresponding Ast.e type *)
 and ast_e (v: value) : exp =
   match v with
+  | V_nop ->
+    Nop
   | V_unit ->
     Unit
   | V_int i ->
@@ -57,9 +60,13 @@ and ast_e (v: value) : exp =
     Str t
   | V_tuple es ->
     Tuple (List.map (fun i -> ast_e i) es)
+  | Closure ((cx, ce), cs) ->
+    Fn (cx, ce)
 
 and eval_expr (e: exp) (s: store) : (value * store) =
   match e with
+  | Nop ->
+    V_nop, s
   | Unit ->
     V_unit, s
   | Int n ->
@@ -79,7 +86,7 @@ and eval_expr (e: exp) (s: store) : (value * store) =
           let get_n (v: value) default =
             match v with
             | V_int n -> if n < 0 then String.length t + n else n
-            | V_unit -> default
+            | V_nop -> default
             | _ -> raise (RuntimeError ("Malformed slicing: " ^ (Pprint.string_of_e e)))
           in
           let n1' = get_n v2 0 in

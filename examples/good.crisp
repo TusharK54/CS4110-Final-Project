@@ -1,0 +1,12 @@
+name = "tushar";
+age = 18;
+
+legal = f(age) {
+   age > 21
+};
+
+if legal(msg) {
+    "yay"
+} else {
+    "nay"
+}

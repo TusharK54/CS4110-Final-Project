@@ -43,6 +43,7 @@ rule token = parse
 
 | "if"              { IF }
 | "else"            { ELSE }
+| "while"           { WHILE }
 
 | ":"               { COLON }
 | "int"             { T_INT }
