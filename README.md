@@ -13,7 +13,7 @@ if 0 < x <= 25 { true } else { false }
 
 2. Type Inferencing
 ```
-# infers max : number
+# infers max : number > number > number
 max = f(x,y) { if x > y { x } else { y } }
 ```
 
