@@ -1,7 +1,7 @@
 
-# 🥓 `crispy` Interpreter
+# 🥓 Crispy Language
 
-`crispy` is statically-typed functional programming language with type inference. It is designed to be a simple language with *crispy* language features to make it useful.
+Crispy is statically-typed functional programming language with type inference. It is designed to be a simple language with *crispy* language features to make it useful.
 
 ## Core Features
 
@@ -31,7 +31,9 @@ if 0 < x <= 25 { true } else { false }
 x, y, z = 1, 2, 3;
 ```
 
-## Build from Source
+## `crispy` Interpreter
+
+### Build from Source
 You can build the `cripsy` interpreter using the Makefile:
 - Run `make` to build the executable file `tk`. 
 - Run `make test` to run a suite of test Crispy programs.
