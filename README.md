@@ -3,19 +3,30 @@
 
 Crispy is statically-typed functional programming language with type inference. It is designed to be a simple language with *crispy* language features that make it useful.
 
-## Language Features
+## Crispy Features
 
-1. Polymorphic types
+1. Comparison chaining
+```
+x = 10;
+if 0 < x <= 25 { true } else { false }
+```
 
-2. Type checker
+2. Type Inferencing
+```
+# infers max : number >> number >> number
+max = f(x,y) { if x > y { x } else { y } }
+```
 
-3. Type inferenching
+## Core Features
 
-4. Comparison chaining
+1. Type checker
 
-5. Module system
 
-6. Formatter
+2. Polymorphic types
+
+
+3. Module system
+
 
 ## Build from Source
 The Crispy interpreter can be built from source using the associated Makefile.
