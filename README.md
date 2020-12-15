@@ -11,10 +11,16 @@ x = 10;
 if 0 < x <= 25 { true } else { false }
 ```
 
-2. Type Inferencing
+2. Tuple Assignment
+```
+# assigns as you would expect
+x, y, z = 1, 2, 3;
+```
+
+3. Type Inferencing
 ```
 # infers max : number >> number >> number
-max = f(x,y) { if x > y { x } else { y } }
+max = (x,y) >> { if x > y { x } else { y } }
 ```
 
 ## Core Features
