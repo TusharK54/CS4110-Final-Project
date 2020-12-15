@@ -17,7 +17,7 @@ max = (x,y) >> { if x > y { x } else { y } }
 
 4. Module System
 
-### Minor Features
+### Additional Features
 
 1. Comparison chaining
 ```
