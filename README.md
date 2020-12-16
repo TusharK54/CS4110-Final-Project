@@ -14,12 +14,12 @@ Crispy is statically-typed functional programming language with type inference. 
 2. Polymorphic Types
 
 3. Type Inferencing
-    ```python
-    # infers max : number -> number -> number
-    max = (x,y) >> { 
-      if x > y { x } else { y } 
-    }
-    ```
+```python
+# infers max : number -> number -> number
+max = (x,y) >> { 
+  if x > y { x } else { y } 
+}
+```
 
 4. Module System - Crispy uses a simple importing mechanism which allows you to easily write modular code. For example, to import the definitions from the `vectors.cpm` module, simply add the following line to the beginning of your program:
 ```python
