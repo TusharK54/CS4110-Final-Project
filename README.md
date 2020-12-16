@@ -39,9 +39,9 @@ You can build the `cripsy` interpreter using the Makefile:
 - Run `make clean` to remove object files and executables.
 
 ### Run
-To execute a `.cpm` program file, run the `crispy` interpreter with `/.crispy <file>.cpm`.
+To execute a `<file>.cpm` Crispy program, run the `crispy` interpreter with `/.crispy <file>.cpm`.
 
-The `examples` directory contains many example Crispy programs, to show different features of the language. You can execute any of these example programs with `/.crispy examples/<file>.cpm`.
+The `examples` directory contains many example Crispy programs which demonstrate different features of the language. You can execute any of these example programs with `/.crispy examples/<file>.cpm`.
 
 The `tests` directory contains a suite of Crispy programs that are used to verify the correctness of interpreter. You can execute all of the tests with `/.crispy tests`. When applied to a directory, the interpreter finds and executes the `<directory>/main.cpm` driver program.
 
