@@ -6,9 +6,10 @@ Crispy is statically-typed functional programming language with type inference. 
 ## Core Features
 
 1. Type Safety -  Crispy is a statically-typed language with a built in type checker. This means that any and all type errors will be caught at compile time instead of at run time. Crispy currently supports the following types: 
-  - Primitives: `int`, `bool`, `str`, `unit`
-  - Tuples: `t1 * ... * tn`
-  - Functions: `t1 -> ... -> tn`
+
+    - Primitives: `int`, `bool`, `str`, `unit`
+    - Tuples: `t1 * ... * tn`
+    - Functions: `t1 -> ... -> tn`
 
 2. Polymorphic Types
 
