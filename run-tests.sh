@@ -12,17 +12,19 @@ tests_total=0
 
 for f in tests/*.crspy tests/**/*.crspy; do
     # run test file $f w/o showing output or error
-    printf "Running test %s ... " $f
-    ./crispy $f > /dev/null 2>&1
+    if [[ -f $f ]]; then
+        printf "Running test %s ... " $f
+        ./crispy $f > /dev/null 2>&1
 
-    # print result and increment counters
-    if [[ $? != 0 ]]; then
-        printf "FAIL\n"
-    else
-        printf "PASS\n"
-        (( tests_passed+=1 ))
+        # print result and increment counters
+        if [[ $? != 0 ]]; then
+            printf "FAIL\n"
+        else
+            printf "PASS\n"
+            (( tests_passed+=1 ))
+        fi
+        (( tests_total+=1 ))
     fi
-    (( tests_total+=1 ))
 
 done
 
