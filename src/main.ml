@@ -36,7 +36,7 @@ let syntax_error_msg lexbuf =
   print_string post_error
   
 let eval_error_msg error =
-  Format.printf "Evaluation Error unimplemented";
+  Format.printf "%s" error;
   Format.print_flush ()
 let file_error_msg filename =
   Format.printf "%s not found" filename;
@@ -97,7 +97,6 @@ let interpret lexbuf (verbose: bool) =
       (* TODO: better handling *)
       error_msg ();
       eval_error_msg err;
-      print_string err;
       exit 2
   in
   good_msg ();

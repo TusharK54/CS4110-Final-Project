@@ -17,7 +17,7 @@
 %token <int> INT
 %token <bool> BOOL
 %token <string> STR ID
-%token T_INT T_BOOL T_STR
+%token T_INT T_BOOL T_STR T_FN
 %token LPAREN RPAREN LSQUARE RSQUARE LCURLY RCURLY
 %token ADD SUB MUL DIV EXP MOD
 %token EQ NE GT GE LT LE NOT AND OR
@@ -140,19 +140,28 @@ tuple:
   ;
 
 /* functions */
-vallist:
-  | v                                   { [$1] }
-  | v COMMA vallist                     { $1::$3 }
-
 arglist:
   | var                                 { [$1] }
   | var COMMA arglist                   { $1::$3 }
   ;
 
+vallist:
+  | v                                   { [$1] }
+  | v COMMA vallist                     { $1::$3 }
+
 
 /* types */
 typ:
+  | t_base                              { $1 }
+  | t_function                          { $1 }
+ /* | t_tuple                             { $1 } */
+  ;
+
+t_base:
   | T_INT                               { T_int }
   | T_BOOL                              { T_bool }
   | T_STR                               { T_str }
+
+t_function:
+  | typ T_FN typ                        { $1 } 
   ;

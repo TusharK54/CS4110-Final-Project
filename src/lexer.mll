@@ -49,6 +49,7 @@ rule token = parse
 | "int"             { T_INT }
 | "bool"            { T_BOOL }
 | "str"             { T_STR }
+| ">>"              { T_FN }
 
 | "f"               { F }
 | "assert"          { ASSERT }

@@ -28,4 +28,4 @@ for f in tests/*.crspy tests/**/*.crspy; do
 
 done
 
-printf "\n%d/%d tests passed" $tests_passed $tests_total
+printf "%d/%d tests passed" $tests_passed $tests_total

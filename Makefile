@@ -23,3 +23,6 @@ clean:
 
 test: crispy
 	./run-tests.sh
+
+env:
+	eval $(opam env)
