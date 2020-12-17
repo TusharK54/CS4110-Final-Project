@@ -1,0 +1,11 @@
+nestedif = f(b) {
+    if b {
+        if !b {
+            assert false
+        } else {
+            assert true
+        }
+    } else {
+        assert false
+    }
+}; nestedif(true);

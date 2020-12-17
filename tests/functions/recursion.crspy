@@ -1,0 +1,8 @@
+rec = f(x) {
+    if x < 0 {
+        true;
+    } else {
+        y = x-1;
+        rec(y);
+    }
+}; assert rec(10);

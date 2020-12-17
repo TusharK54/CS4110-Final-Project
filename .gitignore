@@ -1,8 +1,14 @@
+# ocamlbuild
+_build
 *.cmo
 *.cmi
-_build
+*.byte
+*.native
 
 lexer.ml 
 parser.ml 
 parser.mli
 parser.output
+
+# ocaml lsp
+node_modules

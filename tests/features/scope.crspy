@@ -1,0 +1,3 @@
+x = 20;
+if true { x = 10 } else { x = 15 }
+assert x == 20

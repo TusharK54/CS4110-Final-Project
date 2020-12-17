@@ -1,0 +1,21 @@
+assert !false;
+assert !!true;
+assert !(!(true));
+
+assert true || true;
+assert true || false;
+assert false || true;
+assert !(false || false);
+
+assert true && true;
+assert !(true && false);
+assert !(false && true);
+assert !(false && false);
+
+assert true == true;
+assert false == false;
+assert true != false;
+assert false != true;
+
+assert true || 10;
+assert !(false && 10);
