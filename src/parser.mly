@@ -86,7 +86,7 @@ slice:
 
 assign:
   | var ASSIGN exp                      { Assign($1, $3) }
-  | tuple ASSIGN tuple                  { AssignTuple($1, $3) }
+  | varlist ASSIGN explist              { AssignTuple($1, $3) }
   ;
 
 uop:
@@ -112,14 +112,25 @@ bop:
   | exp OR exp                          { Bop(Or, $1, $3) }
   ;
 
+/* comma-separated expressions */
+
+explist:
+  | exp                                 { [$1] }
+  | exp COMMA explist                   { $1::$3 }
+
+varlist:
+  | var                                 { [$1] }
+  | var COMMA varlist                   { $1::$3 }
+  ;
+
 /* values */
 v:
   | var                                 { Var($1, None) }
   | var COLON typ                       { Var($1, Some $3) }
   | lit                                 { $1 }
-  | tuple                               { $1 }
-  | F LPAREN arglist RPAREN block       { Fn($3, $5) }
-  | exp LPAREN vallist RPAREN           { App($1, $3) }
+  | LPAREN explist RPAREN               { Tuple($2) }
+  | F LPAREN varlist RPAREN block       { Fn($3, $5) }
+  | exp LPAREN explist RPAREN           { App($1, $3) }
   | LPAREN seq RPAREN                   { $2 }
   ;
 
@@ -134,20 +145,6 @@ lit:
   | BOOL                                { Bool($1) }
   | STR                                 { trim_str($1) }
   ;
-
-tuple:
-  | exp COMMA exp                       { build_tuple $1 $3 }
-  ;
-
-/* functions */
-arglist:
-  | var                                 { [$1] }
-  | var COMMA arglist                   { $1::$3 }
-  ;
-
-vallist:
-  | v                                   { [$1] }
-  | v COMMA vallist                     { $1::$3 }
 
 
 /* types */

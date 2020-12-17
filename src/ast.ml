@@ -7,8 +7,6 @@ type typ =
 (* Variable *)
 type var = string
 
-type arg_list = var list
-
 (* Unary operators *)
 type uop =
   | Not
@@ -35,7 +33,7 @@ type bop =
 (* Expressions *)
 type exp =
   | Nop                     (* special purpose *)
-  | Unit
+  | Unit                    (* unit *)
   | Var of var * typ option (* variable reference *)
   | Int of int              (* literals *)
   | Bool of bool
@@ -49,5 +47,9 @@ type exp =
   | Uop of uop * exp
   | Seq of exp * exp        (* sequence *)
   | Assign of var * exp     (* assignment *)
-  | AssignTuple of exp * exp
+  | AssignTuple of var list * exp list
   | If of exp * exp * exp   (* if expression *)
+
+and exp_list = exp list
+
+and arg_list = var list

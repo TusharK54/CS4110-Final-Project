@@ -91,8 +91,8 @@ let rec string_of_e (e: exp) : string =
     let s = string_of_e e in
     String.concat " " [x; "="; s]
   | AssignTuple (xs, es) ->
-    let s1 = string_of_e xs in
-    let s2 = string_of_e es in
+    let s1 = String.concat ", " xs in
+    let s2 = String.concat ", " (List.map (fun i -> string_of_e i) es) in
     String.concat " " [s1; "="; s2]
   | If (g, e1, e2) ->
     let s0 = string_of_e g in

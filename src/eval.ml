@@ -216,7 +216,13 @@ and eval_expr (e: exp) (s: store) : (value * store) =
     let v1, s1 = eval_expr e s in
     V_unit, set_var s1 x v1
   | AssignTuple (xs, es) ->
-    failwith "Unimplemented AssignTuple"
+    if List.length xs <> List.length es then
+      raise (RuntimeError "")
+    else
+      let vs = List.map (fun i -> fst (eval_expr i s)) es in
+      let zip = List.combine xs vs in
+      V_unit, set_vars s zip
+      
   | If (g, e1, e2) ->
     begin
       let v1, s1 = eval_expr g s in
