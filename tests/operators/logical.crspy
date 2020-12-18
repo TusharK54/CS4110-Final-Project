@@ -16,6 +16,3 @@ assert true == true;
 assert false == false;
 assert true != false;
 assert false != true;
-
-assert true || 10;
-assert !(false && 10);

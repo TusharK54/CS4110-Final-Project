@@ -2,6 +2,8 @@ open Ast
 
 let rec string_of_e (e: exp) : string =
   match e with
+  | Var x ->
+    x
   | Nop ->
     ""
   | Unit ->
@@ -14,26 +16,21 @@ let rec string_of_e (e: exp) : string =
     if b then "true" else "false"
   | Str s ->
     String.concat "" ["\""; s; "\""]
+  | Tuple es ->
+    "(" ^ (String.concat ", " (List.map (fun i -> string_of_e i) es)) ^ ")"
   | Slice (e1, n1, n2) ->
     let s = string_of_e e1 in
     let s1 = string_of_e n1 in
     let s2 = string_of_e n2 in
     String.concat "" [s; "["; s1; ":"; s2; "]"]
-  | Tuple es ->
-    "(" ^ (String.concat ", " (List.map (fun i -> string_of_e i) es)) ^ ")"
   | Proj (t, n) ->
     let s1 = string_of_e t in
     let s2 = string_of_e n in
     String.concat "" [s1; "["; s2; "]"]
-  | Var (x, None) ->
-    x
-  | Var (x, Some t) ->
-    let s = string_of_t t in
-    String.concat "" ["("; x; " : "; s; ")"]
-  | Fn (xs, b) ->
-    let args = String.concat ", " xs in
-    let body = string_of_e b in
-    String.concat "" ["f("; args ;") {\n"; body ; "\n}\n"]
+  | Fn (xts, e1) ->
+    let s1 = xts |> List.map (fun (x,t)-> x^":"^(string_of_t t)) |> String.concat ", " in
+    let s2 = string_of_e e1 in
+    String.concat "" ["f("; s1 ;") {\n"; s2 ; "\n}\n"]
   | App (ef, es) ->
     let f = string_of_e ef in
     let args = List.map (fun i -> string_of_e i) es |> String.concat ", " in
@@ -102,17 +99,22 @@ let rec string_of_e (e: exp) : string =
 
 and string_of_t (t: typ) : string =
   match t with
+  | T_any ->
+    "any"
+  | T_nop ->
+    ""
+  | T_unit ->
+    "unit"
   | T_int ->
     "int"
   | T_bool ->
     "bool"
   | T_str ->
     "str"
-  | T_unit ->
-    "unit"
-  | T_fun (t_args, t_out) ->
-    failwith "Unimplemented"
-  | T_sum t_list ->
-    failwith "Unimplemented"
-  | T_product t_list ->
-    failwith "Unimplemented"
+  | T_product ts ->
+    "(" ^ (String.concat ", " (List.map (fun t -> string_of_t t) ts)) ^ ")"
+  | T_sum ts ->
+    failwith "unimplemented string_of_t T_sum"
+  | T_fun (ts, tr) ->
+    "(" ^ (String.concat ", " (List.map (fun t -> string_of_t t) ts)) ^ ")" ^ " >> " ^ (
+      string_of_t tr) 

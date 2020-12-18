@@ -1,6 +1,5 @@
-
-foo = f(x) {
-    x + 10
-};
-
+foo = (x: int) >> { x + 10 };
 foo(20 + 30);
+
+# bigger expression
+foo((if foo(10 % 3) > 10 { 1 } else { 2 })) 

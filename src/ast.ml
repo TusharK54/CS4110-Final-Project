@@ -1,5 +1,7 @@
 type typ =
-  | T_int | T_bool | T_str | T_unit
+  | T_any
+  | T_nop
+  | T_unit | T_int | T_bool | T_str
   | T_sum of typ list
   | T_product of typ list
   | T_fun of typ list * typ
@@ -32,16 +34,16 @@ type bop =
 
 (* Expressions *)
 type exp =
+  | Var of var              (* variable reference *)
   | Nop                     (* special purpose *)
   | Unit                    (* unit *)
-  | Var of var * typ option (* variable reference *)
   | Int of int              (* literals *)
   | Bool of bool
   | Str of string
-  | Slice of exp * exp * exp
   | Tuple of exp list       (* tuples *)
+  | Slice of exp * exp * exp
   | Proj of exp * exp
-  | Fn of var list * exp    (* function value *)
+  | Fn of arg_list * exp    (* function value *)
   | App of exp * exp list   (* function application *)
   | Bop of bop * exp * exp  (* operators *)
   | Uop of uop * exp
@@ -50,6 +52,4 @@ type exp =
   | AssignTuple of var list * exp list
   | If of exp * exp * exp   (* if expression *)
 
-and exp_list = exp list
-
-and arg_list = var list
+and arg_list = (var * typ) list

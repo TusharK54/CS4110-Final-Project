@@ -9,4 +9,7 @@ assert (1) == 1;
 
 assert (1, 2, 3)[0] == 1;
 assert (1, 2, false)[2] == false;
-x = (1,2); assert x[1] == 2;
+
+x = (1,2,false); 
+assert x[1] == 2; 
+assert x[1+1] == false;

@@ -1,4 +1,55 @@
-let syntax_error_msg lexbuf =
+open Eval
+open Check
+open Errors
+
+let print_exp exp =
+  exp |> Pprint.string_of_e |> print_endline
+let print_typ typ =
+  typ |> Pprint.string_of_t |> print_endline
+let print_info info =
+  ANSITerminal.(print_string [blue] (String.uppercase_ascii info));
+  print_string " -- "
+let print_ok () = 
+  ANSITerminal.(print_string [green] "OK\n");
+  flush stdout
+let print_error () = 
+  ANSITerminal.(print_string [red] "ERROR\n");
+  flush stdout
+
+let print_file_error filename =
+  print_error ();
+  Format.printf "File \"%s\" not found" filename;
+  Format.print_flush ()
+
+let print_eof_error () =
+  print_error ();
+  Format.printf "unexpected end-of-file";
+  Format.print_flush ()
+
+let handle_error e =
+  print_error ();
+  match e with
+  | Errors.EvalError (msg, exp) ->
+    if String.length msg > 0 then print_endline (msg^":");
+    if String.length exp > 0 then print_endline exp;
+    exit 1
+  | Errors.TypeError (msg, exp) ->
+    if String.length msg > 0 then print_endline (msg^":");
+    if String.length exp > 0 then print_endline exp;
+    exit 1
+  | Errors.RuntimeError (msg, exp) ->
+    if String.length msg > 0 then print_endline (msg^":");
+    if String.length exp > 0 then print_endline exp;
+    exit 2
+  | Errors.UncaughtTypeError (msg, exp) ->
+    print_endline ("Uncaught type error: "^msg);
+    if String.length exp > 0 then print_endline exp;
+    exit 2
+  | e -> 
+    raise e 
+
+let print_syntax_error lexbuf =
+  print_error ();
   (* lexing position info *)
   let p_s = lexbuf.Lexing.lex_start_p in
   let p_e = lexbuf.Lexing.lex_curr_p in
@@ -29,77 +80,58 @@ let syntax_error_msg lexbuf =
   let post_error = String.sub line span_e (String.length line - span_e) in
 
   (* print color-formatted error message *)
-  Format.printf "File %s on line %d:\n" file row;
+  Format.printf "Syntax error in file \"%s\" on line %d:\n" file row;
   Format.print_flush ();
   print_string pre_error;
   ANSITerminal.(print_string [on_red] error);
   print_string post_error
-  
-let eval_error_msg error =
-  Format.printf "%s" error;
-  Format.print_flush ()
-let file_error_msg filename =
-  Format.printf "%s not found" filename;
-  Format.print_flush ()
-
-let eof_error_msg () =
-  Format.printf "Unexpected EOF";
-  Format.print_flush ()
 
 let interpret lexbuf (verbose: bool) =
-  let error_msg () = 
-    if verbose then (
-      ANSITerminal.(print_string [red] "ERROR\n");
-      flush stdout
-    )
-  in
-  let good_msg () = 
-    if verbose then (
-      ANSITerminal.(print_string [green] "DONE\n");
-      flush stdout
-    )
-  in
-  let info_msg msg =
-    if verbose then (
-      ANSITerminal.(print_string [blue] (String.uppercase_ascii msg));
-      print_string " >> ";
-    )
-  in
-
   (* parse expression *)
-  info_msg "Parsing";  
+  if verbose then print_info "Parsing";
   let e =
     try
       Parser.program Lexer.token lexbuf
     with 
     | Parsing.Parse_error ->
-      error_msg ();
-      syntax_error_msg lexbuf;
+      print_syntax_error lexbuf;
       exit 1
     | End_of_file ->
-      error_msg ();
-      eof_error_msg ();
+      print_eof_error ();
       exit 1
-  in 
-  good_msg ();
+  in
+  if verbose then (
+    print_ok ();
+    print_exp e
+  );
 
-  (* type-check expression TODO *)
-  info_msg "Type-Checking";
-  good_msg ();
+  (* type-check expression *)
+  if verbose then print_info "Type-Checking";
+  let t = 
+    try
+      check e
+    with
+      | err ->
+        handle_error err
+  in
+  if verbose then (
+    print_ok ();
+    print_typ t
+  );
 
   (* evaluate expression *)
-  info_msg "Executing";
+  if verbose then print_info "Executing";
   let v = 
     try
-      Eval.eval e
+      eval e
     with 
-    | Eval.RuntimeError err ->
-      (* TODO: better handling *)
-      error_msg ();
-      eval_error_msg err;
-      exit 2
+    | err ->
+      handle_error err
   in
-  good_msg ();
+  if verbose then (
+    print_ok ();
+    print_exp v
+  );
 
   (* return pretty-printed result *)
   v
@@ -109,17 +141,20 @@ let interpret_str str =
   interpret lexbuf false
 
 let interpret_file filename verbose =
-  let lexbuf = filename |> open_in |> Lexing.from_channel in
-  Lexing.set_filename lexbuf filename;
-  interpret lexbuf verbose
+  try
+    let lexbuf = filename |> open_in |> Lexing.from_channel in
+    Lexing.set_filename lexbuf filename;
+    interpret lexbuf verbose
+  with
+    | Sys_error err -> 
+      print_file_error filename;
+      exit 1
 
 (* CLI entry-point *)
 let () =
   (* get args from command line *)
   let filename = Array.get Sys.argv 1 in
   let verbose = true in
-  if not (Sys.file_exists filename) then  
-    file_error_msg filename
-  else
-    interpret_file filename verbose
-    |> Pprint.string_of_e |> print_endline 
+  let e = interpret_file filename verbose in
+  if not verbose then print_exp e
+    

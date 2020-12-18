@@ -1,2 +1,4 @@
-b = 10; closure = f(a) { a + b };
-b = 0; assert closure(5) == 15;
+b = 10; 
+closure = (a: int) >> { a + b };
+b = 0; 
+assert closure(5) == 15;

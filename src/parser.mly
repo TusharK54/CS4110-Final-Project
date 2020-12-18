@@ -44,7 +44,7 @@
 %start program
 
 %%
-program: seq EOF ;                  { $1 }
+program: seq EOF ;                      { $1 }
 
 
 /* sequence expressions */
@@ -65,8 +65,8 @@ block:      /* blocks that must be followed by a SEQ */
 
 /* expressions */
 block_exp:
-  | IF exp block_seq ELSE block_seq             { If($2, $3, $5) }
-  | WHILE exp block_seq                     { Unit }
+  | IF exp block_seq ELSE block_seq     { If($2, $3, $5) }
+  | WHILE exp block_seq                 { Unit }
 
 exp:
   | v                                   { $1 }
@@ -86,7 +86,7 @@ slice:
 
 assign:
   | var ASSIGN exp                      { Assign($1, $3) }
-  | varlist ASSIGN explist              { AssignTuple($1, $3) }
+  | varlist ASSIGN explist              { AssignTuple($1, $3) } 
   ;
 
 uop:
@@ -118,18 +118,23 @@ explist:
   | exp                                 { [$1] }
   | exp COMMA explist                   { $1::$3 }
 
-varlist:
+varlist: 
   | var                                 { [$1] }
   | var COMMA varlist                   { $1::$3 }
+
+arglist:
+  | var                                 { [($1, T_any)] }
+  | var COMMA arglist                   { ($1, T_any)::$3 }
+  | var COLON typ                       { [($1, $3)] }
+  | var COLON typ COMMA arglist         { ($1, $3)::$5 }
   ;
 
 /* values */
 v:
-  | var                                 { Var($1, None) }
-  | var COLON typ                       { Var($1, Some $3) }
+  | var                                 { Var($1) }
   | lit                                 { $1 }
   | LPAREN explist RPAREN               { Tuple($2) }
-  | F LPAREN varlist RPAREN block       { Fn($3, $5) }
+  | LPAREN arglist RPAREN T_FN block    { Fn($2, $5) }
   | exp LPAREN explist RPAREN           { App($1, $3) }
   | LPAREN seq RPAREN                   { $2 }
   ;

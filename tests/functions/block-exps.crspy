@@ -1,4 +1,4 @@
-nestedif = f(b) {
+nestedif = (b: bool) >> {
     if b {
         if !b {
             assert false
