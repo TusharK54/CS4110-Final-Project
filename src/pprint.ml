@@ -30,7 +30,7 @@ let rec string_of_e (e: exp) : string =
   | Fn (xts, e1) ->
     let s1 = xts |> List.map (fun (x,t)-> x^":"^(string_of_t t)) |> String.concat ", " in
     let s2 = string_of_e e1 in
-    String.concat "" ["f("; s1 ;") {\n"; s2 ; "\n}\n"]
+    String.concat "" ["("; s1 ;") {\n"; s2 ; "\n}\n"]
   | App (ef, es) ->
     let f = string_of_e ef in
     let args = List.map (fun i -> string_of_e i) es |> String.concat ", " in
@@ -116,5 +116,5 @@ and string_of_t (t: typ) : string =
   | T_sum ts ->
     failwith "unimplemented string_of_t T_sum"
   | T_fun (ts, tr) ->
-    "(" ^ (String.concat ", " (List.map (fun t -> string_of_t t) ts)) ^ ")" ^ " >> " ^ (
+    (String.concat ", " (List.map (fun t -> string_of_t t) ts)) ^ " >> " ^ (
       string_of_t tr) 

@@ -6,11 +6,6 @@
   let trim_str s =
     let s' = String.sub s 1 (String.length s - 2) in
     Str(s')
-
-  let build_tuple e1 e2 =
-  match e2 with
-  | Tuple es -> Tuple(e1::es)
-  | _ -> Tuple(e1::[e2])
 %}
 
 %token UNIT
@@ -23,7 +18,7 @@
 %token EQ NE GT GE LT LE NOT AND OR
 %token COMMA DOT QUOTE DQUOTE COLON
 
-%token ASSIGN F
+%token ASSIGN
 %token SEQ
 %token IF ELSE WHILE
 %token ASSERT ASSERTFAIL
@@ -122,9 +117,9 @@ varlist:
   | var                                 { [$1] }
   | var COMMA varlist                   { $1::$3 }
 
-arglist:
+arglist: /*
   | var                                 { [($1, T_any)] }
-  | var COMMA arglist                   { ($1, T_any)::$3 }
+  | var COMMA arglist                   { ($1, T_any)::$3 } */
   | var COLON typ                       { [($1, $3)] }
   | var COLON typ COMMA arglist         { ($1, $3)::$5 }
   ;
@@ -156,7 +151,8 @@ lit:
 typ:
   | t_base                              { $1 }
   | t_function                          { $1 }
- /* | t_tuple                             { $1 } */
+  | LPAREN typlist RPAREN               { T_product($2) }
+  | LPAREN typ RPAREN                   { $2 }
   ;
 
 t_base:
@@ -167,3 +163,7 @@ t_base:
 t_function:
   | typ T_FN typ                        { $1 } 
   ;
+
+typlist:
+  | typ                                 { [$1] }
+  | typ COMMA typlist                   { $1::$3 }

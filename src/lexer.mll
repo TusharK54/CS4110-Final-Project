@@ -51,7 +51,6 @@ rule token = parse
 | "str"             { T_STR }
 | ">>"              { T_FN }
 
-| "f"               { F }
 | "assert"          { ASSERT }
 | "assertfail"      { ASSERTFAIL }
 

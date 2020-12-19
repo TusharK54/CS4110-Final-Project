@@ -32,8 +32,8 @@ let rec check (e: exp) : typ =
   let t, c = check_exp e [] in t
 
 and check_exp (e: exp) (c: ctx) : typ * ctx =
-let raise_run_exn msg = raise_run_exn e msg in
-let raise_typ_exn msg = raise_typ_exn e msg in
+  let raise_run_exn msg = raise_run_exn e msg in
+  let raise_typ_exn msg = raise_typ_exn e msg in
 
   match e with
   | Var x ->
@@ -66,7 +66,8 @@ let raise_typ_exn msg = raise_typ_exn e msg in
       let t1, c1 = check_exp e1 c in
       let t2, c2 = check_exp e2 c1 in
       let t3, c3 = check_exp e3 c2 in
-      if not ((t2 == T_int || t2 == T_nop) && (t3 == T_int || t3 == T_nop)) then
+      if not ((compare_typ t2 T_int || compare_typ t2 T_nop) &&
+        (compare_typ t3 T_int || compare_typ t3 T_nop)) then
         raise_typ_exn ""
       else
         match t1 with
@@ -79,7 +80,7 @@ let raise_typ_exn msg = raise_typ_exn e msg in
     begin
       let t1, c1 = check_exp e1 c in
       let t2, c2 = check_exp e2 c1 in
-      if not (t2 == T_int) then
+      if not (compare_typ t2 T_int) then
         raise_typ_exn "Projection index must be an int"
       else
         match t1 with
@@ -115,12 +116,16 @@ let raise_typ_exn msg = raise_typ_exn e msg in
       let t1, c1 = check_exp e1 c in
       match t1 with
       | T_fun (ts, tr) ->
-        if List.length es <> List.length ts then
-          raise_typ_exn "" (* currying? *)
+        if List.length ts > List.length es then
+          raise_typ_exn "Function applied to too few arguments" (* currying? *)
+        else if List.length ts < List.length es then
+          raise_typ_exn "Function applied to too many arguments"
         else
           let ts' = List.map (fun e -> fst (check_exp e c)) es in
           let tts = List.combine ts ts' in
-          if List.length (List.filter (fun (a, b) -> a != b) tts) > 0 then
+          let f_tts = List.filter (fun (a, b) -> not (compare_typ a b)) tts in
+
+          if List.length f_tts > 0 then
             raise_typ_exn "Function arguments have incompatible types"
           else
             tr, c1
@@ -144,17 +149,17 @@ let raise_typ_exn msg = raise_typ_exn e msg in
               raise_typ_exn ""
         end
       | Sub | Mul | Div | Exp | Mod ->
-        if t1 == t2 && t2 == T_int then T_int, c2
+        if compare_typ t1 t2 && compare_typ t1 T_int then T_int, c2
         else raise_typ_exn ""
       | Gt | Lt | Ge | Le ->
-        if t1 == t2 && t2 == T_int then T_bool, c2
+        if compare_typ t1 t2 && compare_typ t1 T_int then T_bool, c2
         else raise_typ_exn ""
       | And | Or ->
-        if t1 == t2 && t2 == T_bool then T_bool, c2
+        if compare_typ t1 t2 && compare_typ t1 T_bool then T_bool, c2
         else raise_typ_exn ""      
       | Eq | Ne ->
         begin
-          if t1 <> t2 then 
+          if not (compare_typ t1 t2) then 
             raise_typ_exn ""
           else
             match t2 with
@@ -169,10 +174,10 @@ let raise_typ_exn msg = raise_typ_exn e msg in
       let t1, c1 = check_exp e1 c in
       match op with 
       | Not ->
-        if t1 == T_bool then T_bool, c1
+        if compare_typ t1 T_bool then T_bool, c1
         else raise_typ_exn ""
       | Assert ->
-        if t1 == T_bool then T_unit, c1
+        if compare_typ t1 T_bool then T_unit, c1
         else raise_typ_exn ""
       | AssertFail -> T_unit, c1
     end
@@ -192,7 +197,7 @@ let raise_typ_exn msg = raise_typ_exn e msg in
       let t3, c3 = check_exp e3 c2 in
       match t1 with
       | T_bool ->
-        if t2 = t3 then t3, c3
+        if compare_typ t2 t3 then t3, c3
         else raise_typ_exn ""
       | _ ->
         raise_typ_exn ""
