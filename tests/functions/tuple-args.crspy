@@ -1,0 +1,7 @@
+fst = (t: (int, int)) >> { t[0] };
+snd = (t: (int, int)) >> { t[1] };
+
+x = (1, 2);
+
+assert fst(x) == 1;
+assert snd(x) == 2;

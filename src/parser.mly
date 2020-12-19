@@ -3,9 +3,19 @@
   open Printf
   open Lexing
 
-  let trim_str s =
-    let s' = String.sub s 1 (String.length s - 2) in
-    Str(s')
+  let remove_quotes s =
+    String.sub s 1 (String.length s - 2)
+
+  let t_fun_factory ts =
+
+    let rec factory acc ts =
+      match acc with
+      | t::[] ->
+        T_fun(acc, t)
+      | t::z ->
+        factory (t::acc) z
+    in factory [] ts
+
 %}
 
 %token UNIT
@@ -143,7 +153,7 @@ lit:
   | INT                                 { Int($1) }
   | SUB INT                             { Int(-1 * $2) }
   | BOOL                                { Bool($1) }
-  | STR                                 { trim_str($1) }
+  | STR                                 { Str(remove_quotes($1)) }
   ;
 
 
@@ -161,7 +171,7 @@ t_base:
   | T_STR                               { T_str }
 
 t_function:
-  | typ T_FN typ                        { $1 } 
+  | typ T_FN typ                        { T_fun([$1], $3) } 
   ;
 
 typlist:

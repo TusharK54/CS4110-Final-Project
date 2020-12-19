@@ -1,0 +1,9 @@
+apply = (f: (int >> int), x: int) >> {
+    f(x)
+};
+
+add1 = (x: int) >> {
+    x + 1
+};
+
+assert apply(add1, 10) == 11
