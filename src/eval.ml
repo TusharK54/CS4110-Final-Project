@@ -142,7 +142,7 @@ and eval_exp (e: exp) (s: store) : value * store =
     begin
       let v1, s1 = eval_exp e1 s in
       match v1 with
-      | Closure ((xts, e1), s1) ->
+      | Closure ((xts, e2), s2) ->
         begin
           let xs, ts = List.split xts in
           if List.length xs > List.length es then
@@ -150,14 +150,14 @@ and eval_exp (e: exp) (s: store) : value * store =
           else if List.length xs < List.length es then
             raise_run_exn "Function applied to too many arguments"
           else
-            let rec eval_args (acc: value list) (sa: store) (args: exp list) : store =
+            let rec eval_args (acc: value list) (args: exp list) : store =
               match args with
               | [] ->
-                set_vars s1 (List.combine xs (List.rev acc))
+                set_vars s2 (List.combine xs (List.rev acc))
               | arg::z ->
-                let vx, sx = eval_exp arg sa in
-                eval_args (vx::acc) sx z
-            in eval_exp e1 (eval_args [] s1 es)
+                let vx, _ = eval_exp arg s1 in
+                eval_args (vx::acc) z
+            in fst(eval_exp e2 (eval_args [] es)), s1
         end
       | _ -> 
         raise_typ_exn "Function application"
