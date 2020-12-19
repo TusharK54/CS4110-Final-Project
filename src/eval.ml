@@ -251,9 +251,9 @@ and eval_exp (e: exp) (s: store) : value * store =
       match v1 with
       | V_bool b ->
         if b then 
-          eval_exp e1 s1 
+          eval_exp e2 s1 
         else 
-          eval_exp e2 s1
+          eval_exp e3 s1
       | _ ->
         raise_typ_exn "If-expression guard"
     end
